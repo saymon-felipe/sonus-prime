@@ -12,9 +12,12 @@ serve(async (req) => {
       throw new Error(`Dados incompletos. Payload: ${JSON.stringify(payload)}`)
     }
 
+    console.log(`➡️ Processando e-mail estilizado para: ${name}`)
+
+    // IMPORTANTE: Assim que subir a logo em formato PNG na Netlify, o link funcionará em 100% dos e-mails
     const logoUrl = 'https://sonus-prime.netlify.app/logo.png'
 
-    // Mudança: Remetente oficial e destinatário dinâmico (Cliente)
+    // 1. E-mail de confirmação para o Cliente (Tema Escuro Elegante)
     const clientEmailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -22,8 +25,8 @@ serve(async (req) => {
         'Authorization': `Bearer ${RESEND_API_KEY}`
       },
       body: JSON.stringify({
-        from: 'Sonus Prime <contato@sonusprime.com.br>',
-        to: email,
+        from: 'Sistema Sonus Prime <onboarding@resend.dev>', // Mudar para contato@sonusprime.com.br após verificar domínio
+        to: 'agencia.sonusprime@gmail.com', // MODO SANDBOX: Mude para a variável 'email' na versão final
         subject: 'Recebemos o seu contato! - Sonus Prime',
         html: `
           <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0a0a0a; color: #f5f5f7; padding: 40px; border-radius: 12px; border: 1px solid #222;">
@@ -51,7 +54,7 @@ serve(async (req) => {
       throw new Error(`Erro Resend (Cliente): ${JSON.stringify(clientData)}`)
     }
 
-    // Mudança: Remetente oficial e destinatários da agência
+    // 2. E-mail de aviso interno para a Agência (Tema Claro / Foco na Leitura)
     const agencyEmailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -59,8 +62,8 @@ serve(async (req) => {
         'Authorization': `Bearer ${RESEND_API_KEY}`
       },
       body: JSON.stringify({
-        from: 'Sistema Sonus Prime <contato@sonusprime.com.br>',
-        to: ['joaojunior.jj@gmail.com', 'linnubr@gmail.com'],
+        from: 'Sistema Sonus Prime <onboarding@resend.dev>', // Mudar para contato@sonusprime.com.br após verificar domínio
+        to: ['agencia.sonusprime@gmail.com'],
         subject: `🔥 Novo Lead Recebido: ${name}`,
         html: `
           <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f5f5f7; color: #1d1d1f; padding: 40px; border-radius: 12px; border: 1px solid #e5e5ea;">
