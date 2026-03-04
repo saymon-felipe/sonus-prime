@@ -1,32 +1,64 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts"
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 
-console.log("Hello from Functions!")
+serve(async (req) => {
+  try {
+    const payload = await req.json()
+    const { name, email, project } = payload.record // Dados recém inseridos na tabela 'contacts'
 
-Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+    // 1. E-mail de confirmação para o Cliente (Estilizado)
+    const clientEmailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${RESEND_API_KEY}`
+      },
+      body: JSON.stringify({
+        from: 'Sonus Prime <contato@sonusprime.com.br>', // Use o domínio validado no Resend
+        to: email,
+        subject: 'Recebemos o seu contato! - Sonus Prime',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #000; color: #fff; padding: 40px; border-radius: 8px;">
+            <h1 style="color: #fff; text-align: center;">SONUS PRIME</h1>
+            <p style="font-size: 16px; color: #ccc;">Olá <strong>${name}</strong>,</p>
+            <p style="font-size: 16px; color: #ccc;">Recebemos a sua mensagem sobre o projeto: <em>"${project}"</em>.</p>
+            <p style="font-size: 16px; color: #ccc;">A nossa equipa já está a analisar as suas informações e entraremos em contacto muito em breve para agendarmos uma conversa.</p>
+            <hr style="border-color: #333; margin: 30px 0;" />
+            <p style="font-size: 14px; color: #888; text-align: center;">Elevando o Padrão Digital.<br>Equipa Sonus Prime</p>
+          </div>
+        `
+      })
+    })
+
+    // 2. E-mail de aviso interno para a Agência
+    const agencyEmailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${RESEND_API_KEY}`
+      },
+      body: JSON.stringify({
+        from: 'Sistema Sonus Prime <contato@sonusprime.com.br>',
+        to: ['joaojunior.jj@hotmail.com', 'linnubr@gmail.com'],
+        subject: `Novo Lead: ${name}`,
+        html: `
+          <h3>Novo contato recebido pelo site!</h3>
+          <p><strong>Nome:</strong> ${name}</p>
+          <p><strong>E-mail:</strong> ${email}</p>
+          <p><strong>Sobre o Projeto:</strong><br/>${project}</p>
+        `
+      })
+    })
+
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { "Content-Type": "application/json" },
+      status: 200,
+    })
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { "Content-Type": "application/json" },
+      status: 400,
+    })
   }
-
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
 })
-
-/* To invoke locally:
-
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
-
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/send-contact-email' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
-
-*/
