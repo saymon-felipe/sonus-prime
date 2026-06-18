@@ -2,6 +2,7 @@ import { reactive } from 'vue';
 
 export const themeStore = reactive({
   theme: 'dark',
+  selectedProject: '',
   init() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {

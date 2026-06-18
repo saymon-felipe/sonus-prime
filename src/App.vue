@@ -10,11 +10,11 @@
     <main>
       <HeroLogo />
       <Intro />
+      <Metrics />
       <Services />
       <Portfolio />
       <Contact />
     </main>
-
     <Footer />
 
     <button 
@@ -35,6 +35,7 @@ import { themeStore } from './store/theme';
 import Navbar from './components/Navbar.vue';
 import HeroLogo from './components/HeroLogo.vue';
 import Intro from './components/Intro.vue';
+import Metrics from './components/Metrics.vue';
 import Services from './components/Services.vue';
 import Portfolio from './components/Portfolio.vue';
 import Contact from './components/Contact.vue';
@@ -42,7 +43,7 @@ import Footer from './components/Footer.vue';
 import Cursor from './components/Cursor.vue';
 
 export default {
-  components: { OverlayScrollbarsComponent, Navbar, HeroLogo, Intro, Services, Portfolio, Contact, Footer, Cursor },
+  components: { OverlayScrollbarsComponent, Navbar, HeroLogo, Intro, Metrics, Services, Portfolio, Contact, Footer, Cursor },
   data() {
     return {
       themeStore,

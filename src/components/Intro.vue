@@ -1,6 +1,6 @@
 <template>
   <section id="about" class="section-intro">
-    <h2 class="intro-text" v-reveal="{ y: 50, duration: 0.8 }">
+    <h2 class="intro-text" v-reveal.words="{ y: 15, duration: 0.7 }">
       Nós construímos o futuro da web.
       <br />
       <span style="color: var(--text-secondary)">

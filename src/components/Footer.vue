@@ -77,9 +77,9 @@ export default {
 .footer-logo {
   height: 40px;
   margin-bottom: 20px;
-  filter: invert(0) brightness(0.2);
+  filter: invert(1);
 }
-.footer-logo.isDark { filter: invert(0) brightness(2); }
+.footer-logo.isDark { filter: none; }
 .footer-text {
   color: var(--text-secondary);
   line-height: 1.6;
